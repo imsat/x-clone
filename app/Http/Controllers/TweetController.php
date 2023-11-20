@@ -13,9 +13,25 @@ class TweetController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $perPage = $request->get('per_page', 10);
+        $userId = $request->get('user_id');
+        try {
+            $query = Tweet::search()
+                ->select('id', 'content', 'image', 'created_at')
+                ->latest();
+
+            if(data_get($request, 'user_id')){
+                $query->whereUserId($userId);
+            }
+            $tweets = $query->paginate($perPage);
+            return $this->response(true, 'Tweet list', $tweets);
+
+        } catch (\Exception $e) {
+            return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
+        }
+
     }
 
     /**
@@ -37,6 +53,14 @@ class TweetController extends Controller
         $tweet = Tweet::create($data);
 
         return $this->response(true, 'Created successfully.', $tweet);
+
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Tweet $tweet)
+    {
 
     }
 

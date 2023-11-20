@@ -3,63 +3,41 @@
 namespace App\Http\Controllers;
 
 use App\Models\Follower;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class FollowerController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Follow user.
      */
-    public function index()
+    public function follow(User $user)
     {
-        //
+        $authId = auth()->user()->id;
+        if ($user->id == $authId) {
+            return $this->response(false, 'You cannot follow your own profile.!', 'null', 403);
+        }
+
+        try {
+            $checkExist = $user->follower()->where('following_id', $authId)->first();
+            if ($checkExist) {
+                return $this->response(false, 'Already followed!', 'null', 409);
+            } else {
+                $user->follower()->create(['following_id' => $authId]);
+                return $this->response(true, 'Successfully followed');
+            }
+        } catch (\Exception $e) {
+            return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
+        }
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Unfollow user.
      */
-    public function create()
+    public function unFollow(User $user)
     {
-        //
+        $user->follower()->where('following_id', auth()->user()->id)->delete();
+        return true;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Follower $follower)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Follower $follower)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Follower $follower)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Follower $follower)
-    {
-        //
-    }
 }

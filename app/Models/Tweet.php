@@ -15,6 +15,12 @@ class Tweet extends Model
         'image',
     ];
 
+    public function scopeSearch($query)
+    {
+        $search = request()->get('search');
+        return empty($search) ? $query : $query->where('content', 'LIKE', '%' . $search . '%');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

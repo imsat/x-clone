@@ -46,6 +46,12 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
+    public function scopeSearch($query)
+    {
+        $search = request()->get('search');
+        return empty($search) ? $query : $query->where('email', 'LIKE', '%' . $search . '%')->orWhere('user_name', 'LIKE', '%' . $search . '%');
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -77,6 +83,16 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function followeing()
+    {
+        return $this->hasMany(Follower::class, 'following_id');
+    }
+
+    public function follower()
+    {
+        return $this->hasMany(Follower::class);
+    }
+
+    public function following()
     {
         return $this->hasMany(Follower::class, 'following_id');
     }
