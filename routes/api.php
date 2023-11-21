@@ -28,13 +28,16 @@ Route::prefix('/v1')->group(function () {
 
     Route::middleware('auth:api')->group(function () {
         //Series
+        Route::get('/users/{user}/tweets', [TweetController::class, 'userTweet']);
         Route::apiResource('/tweets', TweetController::class)->only(['store', 'show']);
 
         //Follow
+        Route::get('/users/{user}/followers', [FollowerController::class, 'userFollower']);
+        Route::get('/users/{user}/following', [FollowerController::class, 'userFollowing']);
         Route::post('/users/{user}/follow', [FollowerController::class, 'follow']);
         Route::post('/users/{user}/unfollow', [FollowerController::class, 'unFollow']);
 
-        //User list
+        //User
         Route::get('/users', [UserController::class, 'index']);
 
     });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tweet;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -31,7 +32,6 @@ class TweetController extends Controller
         } catch (\Exception $e) {
             return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
         }
-
     }
 
     /**
@@ -65,10 +65,16 @@ class TweetController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Get user tweets.
      */
-    public function destroy(Tweet $tweet)
+    public function userTweet(User $user, Request $request)
     {
-        //
+        $perPage = $request->get('per_page', 10);
+        try {
+            $userTweets = $user->tweets()->paginate($perPage);
+            return $this->response(true, 'User tweet list', $userTweets);
+        } catch (\Exception $e) {
+            return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
+        }
     }
 }
