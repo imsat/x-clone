@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FollowerController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\TweetController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -27,7 +28,10 @@ Route::prefix('/v1')->group(function () {
 
 
     Route::middleware('auth:api')->group(function () {
-        //Series
+        //Like
+        Route::get('/users/{user}/tweets/{tweet}/{action}', [LikeController::class, 'likeOrDislikeTweet']);
+
+        //Tweet
         Route::get('/users/{user}/tweets', [TweetController::class, 'userTweet']);
         Route::apiResource('/tweets', TweetController::class)->only(['store', 'show']);
 
@@ -38,7 +42,7 @@ Route::prefix('/v1')->group(function () {
         Route::post('/users/{user}/unfollow', [FollowerController::class, 'unFollow']);
 
         //User
-        Route::get('/users', [UserController::class, 'index']);
+        Route::apiResource('/users', UserController::class)->only(['index', 'show']);
 
     });
 

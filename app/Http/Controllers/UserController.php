@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -24,5 +25,20 @@ class UserController extends Controller
             return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
         }
 
+    }
+
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(User $user)
+    {
+        try {
+            $user->loadCount(['followers', 'following', 'likes']);
+
+            return $this->response(true, 'User profile', $user);
+        } catch (\Exception $e) {
+            return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
+        }
     }
 }

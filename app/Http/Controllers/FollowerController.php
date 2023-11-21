@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Follower;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -15,7 +14,10 @@ class FollowerController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         try {
-            $userFollowers = $user->followers()->paginate($perPage);
+            $userFollowers = $user->followers()
+                ->with('follower:id,name,user_name,avatar')
+                ->select(['id', 'user_id', 'following_id'])
+                ->paginate($perPage);
             return $this->response(true, 'User follower list', $userFollowers);
         } catch (\Exception $e) {
             return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
@@ -29,7 +31,11 @@ class FollowerController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         try {
-            $userFollowings = $user->following()->paginate($perPage);
+            $userFollowings = $user->following()
+                ->with('following:id,name,user_name,avatar')
+                ->select(['id', 'user_id', 'following_id'])
+                ->paginate($perPage);
+
             return $this->response(true, 'User following list', $userFollowings);
         } catch (\Exception $e) {
             return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);

@@ -3,63 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\Like;
+use App\Models\Tweet;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LikeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Like or dislike tweet.
      */
-    public function index()
+    public function likeOrDislikeTweet(User $user, Tweet $tweet, $action)
     {
-        //
-    }
+        $query = DB::table('likes');
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        try {
+            if($action == 'like'){
+                $query->insert([
+                    'user_id' => $user->id,
+                    'tweet_id' => $tweet->id,
+                    'created_at' => now(),
+                ]);
+            }else{
+                $query->whereUserId($user->id)->whereTweetId($tweet->id)->delete();
+            }
+            return $this->response(true, 'Successfully done');
+        } catch (\Exception $e) {
+            return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Like $like)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Like $like)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Like $like)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Like $like)
-    {
-        //
     }
 }
