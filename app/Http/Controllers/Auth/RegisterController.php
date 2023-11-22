@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class RegisterController extends Controller
 {
@@ -27,7 +28,19 @@ class RegisterController extends Controller
             $data['email_verified_at'] =  now();
             $user = $this->createOrUpdate($data);
 
-            return $this->response(true, 'User creadted successfully.', $user);
+            if (!$token = JWTAuth::attempt([
+                "email" => $data['email'],
+                "password" => $data['password'],
+            ])) {
+                return $this->response(false, 'Unauthorized', null,  401, $validator->errors());
+            }
+
+            $userData = [
+                'token' => $token,
+                'user' => $user
+            ];
+
+            return $this->response(true, 'User created successfully.', $userData);
         } catch (\Exception $e) {
             return $this->response(false, $e->getMessage() ?? 'Something went wrong!' ,null, 400);
         }
