@@ -12,6 +12,7 @@ export default new Vuex.Store({
     state: {
         user: getItem('user') || null,
         token: getItem('token') || null,
+        isLoading: false
     },
     mutations: {
         SET_USER(state, data) {
@@ -21,6 +22,10 @@ export default new Vuex.Store({
         SET_TOKEN(state, data) {
             state.token = data;
             data === null ? removeItem('token') : setItem('token', data)
+        },
+        /** Set global loader */
+        SET_IS_LOADING(state) {
+            state.isLoading = !state.isLoading
         },
     },
     actions: {

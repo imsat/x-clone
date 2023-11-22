@@ -1,5 +1,7 @@
 <template>
-<h2>Private</h2>
+    <div class="container">
+        <slot/>
+    </div>
 </template>
 
 <script>

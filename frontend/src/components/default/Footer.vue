@@ -4,12 +4,10 @@
             <li class="nav-item">
                 <router-link to="/" class="nav-link px-2 text-body-secondary">Home</router-link>
             </li>
-<!--            <li class="nav-item" v-if="!isLoggedIn">-->
-            <li class="nav-item">
+            <li class="nav-item" v-if="!token">
                 <router-link to="/login" class="nav-link px-2 text-body-secondary">Sign in</router-link>
             </li>
-<!--            <li class="nav-item" v-if="!isLoggedIn">-->
-            <li class="nav-item">
+            <li class="nav-item" v-if="!token">
                 <router-link to="/signup" class="nav-link px-2 text-body-secondary">Sign up</router-link>
             </li>
         </ul>
@@ -18,11 +16,13 @@
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
     name: "Footer",
-    // computed: {
-    //     ...mapState(store, ['isLoggedIn'])
-    // },
+    computed: {
+        ...mapState(['token'])
+    },
 }
 </script>
 

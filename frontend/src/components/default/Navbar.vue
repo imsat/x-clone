@@ -16,7 +16,7 @@
                 <div class="dropdown text-end" v-if="token">
                     <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                        <img src="https://github.com/mdo.png" alt="mdo" class="rounded-circle profile-img">
                     </a>
                     <ul class="dropdown-menu text-small">
                         <li>
@@ -40,9 +40,7 @@ import {mapState, mapActions} from "vuex";
 export default {
     name: "Navbar",
     computed: {
-        ...mapState([
-            'token',
-        ]),
+        ...mapState(['token']),
     },
     methods: {
         ...mapActions(['logout'])

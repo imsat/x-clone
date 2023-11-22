@@ -1,10 +1,23 @@
 <template>
-<h2>Private</h2>
+    <div>
+        <Navbar/>
+        <div class="container">
+            <slot/>
+        </div>
+        <Footer/>
+    </div>
 </template>
 
 <script>
+import Navbar from "../../components/default/Navbar.vue";
+import Footer from "../../components/default/Footer.vue";
+
 export default {
-    name: "PrivateLayout"
+    name: "PrivateLayout",
+    components: {
+        Navbar,
+        Footer,
+    },
 }
 </script>
 <style scoped>

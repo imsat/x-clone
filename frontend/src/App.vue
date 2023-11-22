@@ -1,20 +1,30 @@
 <template>
     <div id="app">
-        <Navbar/>
-        <router-view></router-view>
-        <Footer/>
+        <PrivateLayout v-if="token">
+            <router-view/>
+        </PrivateLayout>
+        <PublicLayout v-else>
+            <router-view/>
+        </PublicLayout>
+        <OverlayLoader v-if="isLoading"/>
     </div>
 </template>
 
 <script>
-import Navbar from "./components/default/Navbar.vue";
-import Footer from "./components/default/Footer.vue";
+import PrivateLayout from "./page/layouts/PrivateLayout.vue";
+import PublicLayout from "./page/layouts/PublicLayout.vue";
+import {mapState} from "vuex";
+import OverlayLoader from "./components/OverlayLoader.vue";
 
 export default {
     name: "App",
     components: {
-        Navbar,
-        Footer
+        PrivateLayout,
+        PublicLayout,
+        OverlayLoader
+    },
+    computed: {
+        ...mapState(['token', 'isLoading']),
     },
 };
 </script>
