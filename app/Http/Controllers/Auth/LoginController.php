@@ -39,7 +39,7 @@ class LoginController extends Controller
         $credential = $request->only('email', 'password');
 
         if (!$token = JWTAuth::attempt($credential)) {
-            return $this->response(false, 'Unauthorized', null,  401, $validator->errors());
+            return $this->response(false, 'Wrong email or password!!', null,  403, $validator->errors());
         }
 
         $userData = auth()->user()->only(['id', 'name', 'user_name', 'email', 'email_verified_at', 'avatar']);

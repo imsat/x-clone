@@ -23,6 +23,7 @@
 <script>
 import {post} from "../utils/fetchAPI.js";
 import {mapMutations} from "vuex";
+import {errorToast} from "../utils/swalUtil.js";
 
 export default {
     name: "Login",
@@ -48,7 +49,7 @@ export default {
                 this.loginForm = {}
                 this.$router.push('/')
             }).catch(errors => {
-                console.log(errors)
+                errorToast(errors?.response?.data?.message)
                 this.setError(errors?.response?.data?.errors);
             })
         },
