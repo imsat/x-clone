@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import {getItem, removeItem, setItem} from "./utils/localStorageUtil.js";
 import {get, getWithParams, post} from "./utils/fetchAPI.js";
-import {successToast} from "./utils/swalUtil.js";
+import {errorToast, successToast} from "./utils/swalUtil.js";
 import router from "./routes.js";
 Vue.use(Vuex);
 export default new Vuex.Store({
@@ -17,6 +17,12 @@ export default new Vuex.Store({
         userFollowing: [],
         tweetForm: {
             content: ''
+        },
+        randomUsers: {
+            data: [],
+            pagination: {
+                current_page: 1
+            }
         }
     },
     mutations: {
@@ -51,6 +57,21 @@ export default new Vuex.Store({
             state.tweets.unshift(data);
             state.userTweets.unshift(data);
             state.tweetForm.content = ''
+        },
+        SET_RANDOM_USER(state, data) {
+            state.randomUsers = data;
+        },
+        SET_USER_FOLLOW(state, userId) {
+            let index = state.randomUsers.map(user => user.id).indexOf(userId)
+            let user =  state.randomUsers[index]
+            user.following.push({user_id: userId})
+            if (index > -1) Vue.set(state.randomUsers, index, user)
+        },
+        SET_USER_UNFOLLOW(state, userId) {
+            let index = state.randomUsers.map(user => user.id).indexOf(userId)
+            let user =  state.randomUsers[index]
+            user.following = []
+            if (index > -1) Vue.set(state.randomUsers, index, user)
         },
     },
     actions: {
@@ -111,7 +132,7 @@ export default new Vuex.Store({
             try {
                 await get(`/users/${userId}/followers`)
                     .then((res) => {
-                        commit('SET_USER_FOLLOWERS', res?.data?.data)
+                        commit('SET_USER_FOLLOWERS', res?.data?.data?.data)
                     })
             } catch (error) {
                 console.log(error.response)
@@ -121,7 +142,7 @@ export default new Vuex.Store({
             try {
                 await get(`/users/${userId}/following`)
                     .then((res) => {
-                        commit('SET_USER_FOLLOWING', res?.data?.data)
+                        commit('SET_USER_FOLLOWING', res?.data?.data?.data)
                     })
             } catch (error) {
                 console.log(error.response)
@@ -129,8 +150,9 @@ export default new Vuex.Store({
         },
         async userFollow({commit}, userId){
             try {
-                await get(`/users/${userId}/follow`)
+                await post(`/users/${userId}/follow`)
                     .then((res) => {
+                        commit('SET_USER_FOLLOW', userId)
                         successToast(res?.data?.message)
                     })
             } catch (error) {
@@ -139,7 +161,18 @@ export default new Vuex.Store({
         },
         async userUnfollow({commit}, userId){
             try {
-                await get(`/users/${userId}/unfollow`)
+                await post(`/users/${userId}/unfollow`)
+                    .then((res) => {
+                        commit('SET_USER_UNFOLLOW', userId)
+                        successToast(res?.data?.message)
+                    })
+            } catch (error) {
+                errorToast(error?.response?.data?.message)
+            }
+        },
+        async createTweet({state}){
+            try {
+                await post(`/tweets`, state.tweetForm)
                     .then((res) => {
                         successToast(res?.data?.message)
                     })
@@ -147,11 +180,11 @@ export default new Vuex.Store({
                 console.log(error.response)
             }
         },
-        async createTweet({state, commit}){
+        async getRandomUser({state, commit}, payload){
             try {
-                await post(`/tweets`, state.tweetForm)
+                await getWithParams(`/users`, payload)
                     .then((res) => {
-                        successToast(res?.data?.message)
+                        commit('SET_RANDOM_USER', res?.data?.data?.data)
                     })
             } catch (error) {
                 console.log(error.response)

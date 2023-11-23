@@ -4,6 +4,7 @@ import Login from './page/Login.vue'
 import Signup from './page/Signup.vue'
 import Home from './page/Home.vue'
 import store from "./store.js";
+import Profile from "./page/Profile.vue";
 
 Vue.use(VueRouter);
 
@@ -11,12 +12,6 @@ const router = new VueRouter({
     mode: 'history',
     linkActiveClass: 'active',
     routes: [
-        {
-            path: '/',
-            name: 'home',
-            component: Home,
-            meta: {requiresAuth: true},
-        },
         {
             path: '/login',
             name: 'login',
@@ -29,7 +24,18 @@ const router = new VueRouter({
             component: Signup,
             meta: {guest: true},
         },
-
+        {
+            path: '/',
+            name: 'home',
+            component: Home,
+            meta: {requiresAuth: true},
+        },
+        {
+            path: '/',
+            name: 'profile',
+            component: Profile,
+            meta: {requiresAuth: true},
+        },
     ]
 });
 

@@ -7,7 +7,7 @@
                     Y
                 </a>
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-<!--                    <li><router-link to="#"  class="nav-link px-2">Some Route</router-link></li>-->
+                    <!--                    <li><router-link to="#"  class="nav-link px-2">Some Route</router-link></li>-->
                 </ul>
 
                 <router-link v-if="!token" to="/login" class="btn btn-sm btn-light">Sign in</router-link>

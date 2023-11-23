@@ -19,8 +19,8 @@ class TweetController extends Controller
         $perPage = $request->get('per_page', 10);
         $userId = $request->get('user_id');
         try {
-            $query = Tweet::search()
-                ->select('id', 'content', 'image', 'created_at')
+            $query = Tweet::with(['user:id,name,user_name,avatar'])->search()
+                ->select(['id', 'content', 'image', 'created_at', 'user_id'])
                 ->latest();
 
             if(data_get($request, 'user_id')){

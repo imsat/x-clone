@@ -42,6 +42,7 @@ Route::prefix('/v1')->group(function () {
         Route::post('/users/{user}/unfollow', [FollowerController::class, 'unFollow']);
 
         //User
+        Route::get('/users/random', [UserController::class, 'getRandomUsers']);
         Route::apiResource('/users', UserController::class)->only(['index', 'show']);
 
     });

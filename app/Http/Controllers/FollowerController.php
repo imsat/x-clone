@@ -15,7 +15,7 @@ class FollowerController extends Controller
         $perPage = $request->get('per_page', 10);
         try {
             $userFollowers = $user->followers()
-                ->with('follower:id,name,user_name,avatar')
+                ->with('followers:id,name,user_name,avatar')
                 ->select(['id', 'user_id', 'following_id'])
                 ->paginate($perPage);
             return $this->response(true, 'User follower list', $userFollowers);
@@ -55,9 +55,10 @@ class FollowerController extends Controller
         try {
             $checkExist = $user->followers()->where('following_id', $authId)->first();
             if ($checkExist) {
-                return $this->response(false, 'Already followed!', 'null', 409);
+                return $this->response(true, 'Successfully followed');
+//                return $this->response(false, 'Already followed!', 'null', 409);
             } else {
-                $user->follower()->create(['following_id' => $authId]);
+                $user->followers()->create(['following_id' => $authId]);
                 return $this->response(true, 'Successfully followed');
             }
         } catch (\Exception $e) {
@@ -70,7 +71,13 @@ class FollowerController extends Controller
      */
     public function unFollow(User $user)
     {
-        $user->followers()->where('following_id', auth()->user()->id)->delete();
-        return true;
+
+        try {
+            $user->followers()->where('following_id', auth()->user()->id)->delete();
+            return $this->response(true, 'Successfully unfollowed');
+
+        } catch (\Exception $e) {
+            return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);
+        }
     }
 }
