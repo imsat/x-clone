@@ -33,7 +33,7 @@ Route::prefix('/v1')->group(function () {
 
         //Tweet
         Route::get('/users/{user}/tweets', [TweetController::class, 'userTweet']);
-        Route::apiResource('/tweets', TweetController::class)->only(['store', 'show']);
+        Route::apiResource('/tweets', TweetController::class)->only(['index', 'store', 'show']);
 
         //Follow
         Route::get('/users/{user}/followers', [FollowerController::class, 'userFollower']);

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import {getItem, removeItem, setItem} from "./utils/localStorageUtil.js";
-import {get, post} from "./utils/fetchAPI.js";
+import {get, getWithParams, post} from "./utils/fetchAPI.js";
 import {successToast} from "./utils/swalUtil.js";
 import router from "./routes.js";
 Vue.use(Vuex);
@@ -67,9 +67,9 @@ export default new Vuex.Store({
                 console.log(error.response)
             }
         },
-        async getTweets({commit}){
+        async getTweets({commit}, payload){
             try {
-                await get('/tweets')
+                await getWithParams('/tweets', payload)
                     .then((res) => {
                         commit('SET_TWEETS', res?.data?.data)
                     })
