@@ -4,8 +4,6 @@ import {getItem, removeItem, setItem} from "./utils/localStorageUtil.js";
 import {get, post} from "./utils/fetchAPI.js";
 import {successToast} from "./utils/swalUtil.js";
 import router from "./routes.js";
-
-
 Vue.use(Vuex);
 export default new Vuex.Store({
     strict: true,
