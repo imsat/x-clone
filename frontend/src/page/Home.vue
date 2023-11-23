@@ -24,6 +24,8 @@
     </div>
 </template>
 <script>
+import {mapActions} from "vuex";
+
 export default {
     name: "Home",
     data() {
@@ -37,6 +39,12 @@ export default {
                 {'id': 6, 'name': 'More', 'path': '#', 'icon': 'three-dots'},
             ]
         }
+    },
+    created() {
+        this.getTweets();
+    },
+    methods: {
+        ...mapActions(['getTweets'])
     }
 }
 </script>

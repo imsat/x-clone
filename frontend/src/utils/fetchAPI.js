@@ -2,8 +2,9 @@ import axios from 'axios'
 import {getItem, removeItem} from "./localStorageUtil.js";
 import store from "../store.js";
 
+export const baseURL = import.meta.env.VITE_API_BASE_URL
+// export const baseURL = "http://x-clone.test/api/v1/"
 // export const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL
-export const baseURL = "http://x-clone.test/api/v1/"
 axios.interceptors.request.use(
     (config) => {
         store.commit('SET_IS_LOADING', {}, {root: true})
