@@ -19,8 +19,9 @@ class TweetController extends Controller
         $perPage = $request->get('per_page', 10);
         $userId = $request->get('user_id');
         try {
-            $query = Tweet::with(['user:id,name,user_name,avatar'])->search()
+            $query = Tweet::with(['user:id,name,user_name,avatar', 'userLikes:id,user_id,tweet_id'])->search()
                 ->select(['id', 'content', 'image', 'created_at', 'user_id'])
+                ->withCount(['likes'])
                 ->latest();
 
             if(data_get($request, 'user_id')){
@@ -51,6 +52,8 @@ class TweetController extends Controller
         $data['user_id'] = Auth::user()->id;
 
         $tweet = Tweet::create($data);
+
+        $tweet->load(['user:id,name,user_name,avatar'])->loadCount(['likes']);
 
         return $this->response(true, 'Created successfully.', $tweet);
 

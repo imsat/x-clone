@@ -18,7 +18,7 @@ class LikeFactory extends Factory
     {
         return [
             'user_id' => mt_rand(1, 10),
-            'tweet_id' => mt_rand(1, 50),
+            'tweet_id' => mt_rand(1, 200),
         ];
     }
 }

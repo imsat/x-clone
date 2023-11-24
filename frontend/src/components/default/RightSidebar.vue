@@ -1,6 +1,7 @@
 <template>
     <div class="sticky-top">
-        <input type="search" class="form-control mb-3" placeholder="Search..." aria-label="Search" @keyup="searchUser" v-model="search" @input="handleInput" ref="input">
+        <input type="search" class="form-control mb-3" placeholder="Search..." aria-label="Search" @keyup="searchUser"
+               v-model="search" @input="handleInput" ref="input">
         <div class="card">
             <div class="card-body">
                 <h4>Who to follow</h4>
@@ -14,13 +15,17 @@
                             <p class="mb-0 ">{{ randomUser?.name }}</p>
                             <p class="mb-0 text-secondary small">@{{ randomUser?.user_name }}</p>
                         </div>
-                        <button class="btn btn-light h-50 my-auto rounded-5 btn-sm px-3 me-1"
-                                v-if="!isObjectEmpty(randomUser?.following)" @click="userFollow(randomUser.id)">Follow
-                        </button>
-                        <button class="btn btn-dark-outline h-50 my-auto rounded-5 btn-sm px-3 me-1" v-else
-                                @click="unfollowUser(randomUser)">Following
-                        </button>
+                        <button
+                            class="btn btn-dark-outline h-50 my-auto rounded-5 btn-sm px-3 me-1"
+                            @click="unfollowUser(randomUser)"
+                            v-if="isObjectEmpty(randomUser?.following)"
+                        >Following</button>
+                        <button
+                            class="btn btn-light h-50 my-auto rounded-5 btn-sm px-3 me-1"
 
+                            @click="userFollow(randomUser.id)"
+                            v-else
+                        >Follow</button>
                     </div>
                 </div>
             </div>
@@ -37,16 +42,16 @@ import debounce from "lodash/debounce";
 
 export default {
     name: "RightSidebar",
-    data(){
+    data() {
         return {
-            search:''
+            search: ''
         }
     },
     computed: {
         ...mapState(['randomUsers']),
     },
     created() {
-        this.getRandomUser({random:true})
+        this.getRandomUser({random: true})
     },
     methods: {
         ...mapActions(['getRandomUser', 'userFollow', 'userUnfollow']),
@@ -54,7 +59,7 @@ export default {
             const title = 'Their posts will no longer show up in your For You timeline. You can still view their profile, unless their posts are protected.'
             confirm('Unfollow @' + user?.user_name, title).then(res => {
                 if (res.value) {
-                this.userUnfollow(user.id)
+                    this.userUnfollow(user.id)
                 }
             })
         },
@@ -63,8 +68,8 @@ export default {
 
         }, 1000),
         handleInput() {
-            if(this.search === ''){
-                this.getRandomUser({random:true})
+            if (this.search === '') {
+                this.getRandomUser({random: true})
             }
         }
 

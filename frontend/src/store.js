@@ -4,6 +4,7 @@ import {getItem, removeItem, setItem} from "./utils/localStorageUtil.js";
 import {get, getWithParams, post} from "./utils/fetchAPI.js";
 import {errorToast, successToast} from "./utils/swalUtil.js";
 import router from "./routes.js";
+
 Vue.use(Vuex);
 export default new Vuex.Store({
     strict: true,
@@ -12,6 +13,7 @@ export default new Vuex.Store({
         token: getItem('token') || null,
         isLoading: false,
         tweets: [],
+        tweet_pagination: {},
         userTweets: [],
         userFollowers: [],
         userFollowing: [],
@@ -23,7 +25,8 @@ export default new Vuex.Store({
             pagination: {
                 current_page: 1
             }
-        }
+        },
+        errors: []
     },
     mutations: {
         SET_USER(state, data) {
@@ -58,97 +61,112 @@ export default new Vuex.Store({
             state.userTweets.unshift(data);
             state.tweetForm.content = ''
         },
+        SET_TWEET_PAGINATION(state, data) {
+            state.tweet_pagination = data;
+        },
         SET_RANDOM_USER(state, data) {
             state.randomUsers = data;
         },
         SET_USER_FOLLOW(state, userId) {
             let index = state.randomUsers.map(user => user.id).indexOf(userId)
-            let user =  state.randomUsers[index]
+            let user = state.randomUsers[index]
             user.following.push({user_id: userId})
             if (index > -1) Vue.set(state.randomUsers, index, user)
         },
         SET_USER_UNFOLLOW(state, userId) {
             let index = state.randomUsers.map(user => user.id).indexOf(userId)
-            let user =  state.randomUsers[index]
+            let user = state.randomUsers[index]
             user.following = []
             if (index > -1) Vue.set(state.randomUsers, index, user)
         },
+        SET_ERROR(state, error) {
+            state.errors = error
+        },
+        SET_LIKE_OR_DISLIKE(state, value) {
+            let index = state.tweets.map(tweet => tweet.id).indexOf(value.tweetId)
+            if (index > -1) {
+                let tweet = state.tweets[index]
+                let tweet_likes_count = parseInt(tweet?.likes_count)
+                if (value?.operation == 'like') {
+                    tweet.likes_count = tweet_likes_count >= 0 ? tweet_likes_count + 1 : 0
+                    tweet.user_likes.push({user_id: value.userId, tweet_id: tweet.id})
+                    Vue.set(state.tweets, index, tweet)
+                } else {
+                    tweet.likes_count =  tweet_likes_count >= 0 ? tweet_likes_count - 1 : 0
+                    tweet.user_likes = []
+                    Vue.set(state.tweets, index, tweet)
+                }
+            }
+
+        }
     },
     actions: {
-        async logout({commit}){
+        async logout({commit}) {
             try {
                 await post('/logout')
                     .then((res) => {
                         commit('SET_USER', null)
                         commit('SET_TOKEN', null)
                         successToast(res?.data?.message)
-                        router.push({ name: 'login' })
+                        router.push({name: 'login'})
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async getTweets({commit}, payload){
+        async getTweets({commit}, payload) {
             try {
                 await getWithParams('/tweets', payload)
                     .then((res) => {
-                        commit('SET_TWEETS', res?.data?.data)
+                        let {data, ...rest} = res?.data?.data
+                        commit('SET_TWEETS', data)
+                        commit('SET_TWEET_PAGINATION', rest)
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async tweetLike({commit}, data){
+        async tweetLikeOrDislike({commit}, data) {
             try {
-                await get(`/users/${data.userId}/tweets/${data.tweetId}/like`)
+                await get(`/users/${data.userId}/tweets/${data.tweetId}/${data.operation}`)
                     .then((res) => {
-                        successToast(res?.data?.message)
+                        commit('SET_LIKE_OR_DISLIKE', data)
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async tweetDislike({commit}, data){
-            try {
-                await get(`/users/${data.userId}/tweets/${data.tweetId}/dislike`)
-                    .then((res) => {
-                        successToast(res?.data?.message)
-                    })
-            } catch (error) {
-                console.log(error.response)
-            }
-        },
-        async getUserTweets({commit}, userId){
+        async getUserTweets({commit}, userId) {
             try {
                 await get(`/users/${userId}/tweets`)
                     .then((res) => {
                         commit('SET_TWEETS', res?.data?.data)
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async getUserFollowers({commit}, userId){
+        async getUserFollowers({commit}, userId) {
             try {
                 await get(`/users/${userId}/followers`)
                     .then((res) => {
                         commit('SET_USER_FOLLOWERS', res?.data?.data?.data)
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async getUserFollowings({commit}, userId){
+        async getUserFollowings({commit}, userId) {
             try {
                 await get(`/users/${userId}/following`)
                     .then((res) => {
                         commit('SET_USER_FOLLOWING', res?.data?.data?.data)
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async userFollow({commit}, userId){
+        async userFollow({commit}, userId) {
             try {
                 await post(`/users/${userId}/follow`)
                     .then((res) => {
@@ -156,10 +174,10 @@ export default new Vuex.Store({
                         successToast(res?.data?.message)
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async userUnfollow({commit}, userId){
+        async userUnfollow({commit}, userId) {
             try {
                 await post(`/users/${userId}/unfollow`)
                     .then((res) => {
@@ -170,24 +188,26 @@ export default new Vuex.Store({
                 errorToast(error?.response?.data?.message)
             }
         },
-        async createTweet({state}){
+        async createTweet({state, commit}) {
             try {
                 await post(`/tweets`, state.tweetForm)
                     .then((res) => {
+                        commit('ADD_TWEET', res?.data?.data)
                         successToast(res?.data?.message)
                     })
             } catch (error) {
-                console.log(error.response)
+                commit('SET_ERROR', error?.response?.data?.errors)
+                errorToast(error?.response?.data?.message)
             }
         },
-        async getRandomUser({state, commit}, payload){
+        async getRandomUser({state, commit}, payload) {
             try {
                 await getWithParams(`/users`, payload)
                     .then((res) => {
                         commit('SET_RANDOM_USER', res?.data?.data?.data)
                     })
             } catch (error) {
-                console.log(error.response)
+                errorToast(error?.response?.data?.message)
             }
         },
     }
