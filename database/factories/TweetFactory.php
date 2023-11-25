@@ -17,7 +17,7 @@ class TweetFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => mt_rand(1, 10),
+            'user_id' => mt_rand(1, 100),
             'content' => fake()->paragraph,
         ];
     }

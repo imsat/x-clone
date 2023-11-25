@@ -33,6 +33,6 @@ class Tweet extends Model
 
     public function userLikes()
     {
-        return $this->hasMany(Like::class)->where('user_id', auth()->id());
+        return $this->likes()->where('user_id', auth()->id());
     }
 }

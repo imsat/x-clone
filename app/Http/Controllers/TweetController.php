@@ -24,7 +24,7 @@ class TweetController extends Controller
                 ->withCount(['likes'])
                 ->latest();
 
-            if(data_get($request, 'user_id')){
+            if (data_get($request, 'user_id')) {
                 $query->whereUserId($userId);
             }
             $tweets = $query->paginate($perPage);
@@ -41,11 +41,11 @@ class TweetController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-        'content' => 'required|string',
-    ]);
+            'content' => 'required|string',
+        ]);
 
         if ($validator->fails()) {
-            return $this->response(false, 'Invalid data!',  null, 400, $validator->errors());
+            return $this->response(false, 'Invalid data!', null, 400, $validator->errors());
         }
 
         $data = $request->only('content', 'password');
@@ -53,17 +53,9 @@ class TweetController extends Controller
 
         $tweet = Tweet::create($data);
 
-        $tweet->load(['user:id,name,user_name,avatar'])->loadCount(['likes']);
+        $tweet->load(['user:id,name,user_name,avatar', 'userLikes:id,user_id,tweet_id'])->loadCount(['likes']);
 
         return $this->response(true, 'Created successfully.', $tweet);
-
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Tweet $tweet)
-    {
 
     }
 
@@ -74,7 +66,10 @@ class TweetController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         try {
-            $userTweets = $user->tweets()->paginate($perPage);
+            $userTweets = $user->tweets()
+                ->with(['user:id,name,user_name,avatar', 'userLikes:id,user_id,tweet_id'])
+                ->withCount(['likes'])
+                ->paginate($perPage);
             return $this->response(true, 'User tweet list', $userTweets);
         } catch (\Exception $e) {
             return $this->response(false, $e->getMessage() ?? 'Something went wrong!', null, 400);

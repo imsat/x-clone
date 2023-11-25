@@ -31,7 +31,7 @@ const router = new VueRouter({
             meta: {requiresAuth: true},
         },
         {
-            path: '/',
+            path: '/profile',
             name: 'profile',
             component: Profile,
             meta: {requiresAuth: true},

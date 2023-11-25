@@ -14,9 +14,8 @@ export default new Vuex.Store({
         isLoading: false,
         tweets: [],
         tweet_pagination: {},
-        userTweets: [],
         userFollowers: [],
-        userFollowing: [],
+        userFollowings: [],
         tweetForm: {
             content: ''
         },
@@ -44,21 +43,17 @@ export default new Vuex.Store({
         SET_TWEETS(state, data) {
             state.tweets = data
         },
-        SET_USER_TWEETS(state, data) {
-            state.userTweets = data
-        },
         SET_USER_FOLLOWERS(state, data) {
             state.userFollowers = data
         },
-        SET_USER_FOLLOWING(state, data) {
-            state.userFollowing = data
+        SET_USER_FOLLOWINGS(state, data) {
+            state.userFollowings = data
         },
         SET_TWEET_CONTENT(state, value) {
             state.tweetForm.content = value
         },
         ADD_TWEET(state, data) {
             state.tweets.unshift(data);
-            state.userTweets.unshift(data);
             state.tweetForm.content = ''
         },
         SET_TWEET_PAGINATION(state, data) {
@@ -67,23 +62,24 @@ export default new Vuex.Store({
         SET_RANDOM_USER(state, data) {
             state.randomUsers = data;
         },
-        SET_USER_FOLLOW(state, userId) {
-            let index = state.randomUsers.map(user => user.id).indexOf(userId)
-            let user = state.randomUsers[index]
-            user.following.push({user_id: userId})
-            if (index > -1) Vue.set(state.randomUsers, index, user)
+        SET_USER_FOLLOW(state, value) {
+            let index = state[value.name].map(user => user.id).indexOf(value.userId)
+            let user = state[value.name][index]
+            user.followers.push({user_id: value.userId})
+            if (index > -1) Vue.set(state[value.name], index, user)
         },
-        SET_USER_UNFOLLOW(state, userId) {
-            let index = state.randomUsers.map(user => user.id).indexOf(userId)
-            let user = state.randomUsers[index]
-            user.following = []
-            if (index > -1) Vue.set(state.randomUsers, index, user)
+        SET_USER_UNFOLLOW(state, value) {
+            let index = state[value.name].map(user => user.id).indexOf(value.userId)
+            let user = state[value.name][index]
+            user.followers = []
+            if (index > -1) Vue.set(state[value.name], index, user)
         },
         SET_ERROR(state, error) {
             state.errors = error
         },
         SET_LIKE_OR_DISLIKE(state, value) {
             let index = state.tweets.map(tweet => tweet.id).indexOf(value.tweetId)
+
             if (index > -1) {
                 let tweet = state.tweets[index]
                 let tweet_likes_count = parseInt(tweet?.likes_count)
@@ -92,7 +88,7 @@ export default new Vuex.Store({
                     tweet.user_likes.push({user_id: value.userId, tweet_id: tweet.id})
                     Vue.set(state.tweets, index, tweet)
                 } else {
-                    tweet.likes_count =  tweet_likes_count >= 0 ? tweet_likes_count - 1 : 0
+                    tweet.likes_count = tweet_likes_count >= 0 ? tweet_likes_count - 1 : 0
                     tweet.user_likes = []
                     Vue.set(state.tweets, index, tweet)
                 }
@@ -140,7 +136,8 @@ export default new Vuex.Store({
             try {
                 await get(`/users/${userId}/tweets`)
                     .then((res) => {
-                        commit('SET_TWEETS', res?.data?.data)
+                        let {data, ...rest} = res?.data?.data
+                        commit('SET_TWEETS', data)
                     })
             } catch (error) {
                 errorToast(error?.response?.data?.message)
@@ -150,7 +147,8 @@ export default new Vuex.Store({
             try {
                 await get(`/users/${userId}/followers`)
                     .then((res) => {
-                        commit('SET_USER_FOLLOWERS', res?.data?.data?.data)
+                        let {data, ...rest} = res?.data?.data
+                        commit('SET_USER_FOLLOWERS', data)
                     })
             } catch (error) {
                 errorToast(error?.response?.data?.message)
@@ -160,28 +158,29 @@ export default new Vuex.Store({
             try {
                 await get(`/users/${userId}/following`)
                     .then((res) => {
-                        commit('SET_USER_FOLLOWING', res?.data?.data?.data)
+                        let {data, ...rest} = res?.data?.data
+                        commit('SET_USER_FOLLOWINGS', data)
                     })
             } catch (error) {
                 errorToast(error?.response?.data?.message)
             }
         },
-        async userFollow({commit}, userId) {
+        async userFollow({commit}, payload) {
             try {
-                await post(`/users/${userId}/follow`)
+                await post(`/users/${payload.userId}/follow`)
                     .then((res) => {
-                        commit('SET_USER_FOLLOW', userId)
+                        commit('SET_USER_FOLLOW', payload)
                         successToast(res?.data?.message)
                     })
             } catch (error) {
                 errorToast(error?.response?.data?.message)
             }
         },
-        async userUnfollow({commit}, userId) {
+        async userUnfollow({commit}, payload) {
             try {
-                await post(`/users/${userId}/unfollow`)
+                await post(`/users/${payload.userId}/unfollow`)
                     .then((res) => {
-                        commit('SET_USER_UNFOLLOW', userId)
+                        commit('SET_USER_UNFOLLOW', payload)
                         successToast(res?.data?.message)
                     })
             } catch (error) {

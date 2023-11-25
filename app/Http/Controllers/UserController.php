@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -16,19 +14,15 @@ class UserController extends Controller
     {
         $perPage = $request->get('per_page', 15);
         try {
-//            whereHas('following', function ($query) {
-//                $query->where('user_id', '<>', Auth::user()->id);
-//            })
-
-            $query = User::with(['following' => function ($query) {
-                $query->where('user_id', Auth::user()->id)
+            $query = User::with(['followers' => function ($query) {
+                $query->where('following_id', auth()->id())
                     ->select('id', 'user_id', 'following_id');
             }])->search()
                 ->select('id', 'name', 'user_name', 'avatar')
                 ->whereStatus(1);
 
             if ($request->has('random')) {
-                $query->inRandomOrder();
+                $query->inRandomOrder()->where('id', '<>',auth()->id());
             } else {
                 $query->latest();
             }
