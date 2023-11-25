@@ -1,7 +1,7 @@
 <template>
     <div>
         <hr>
-        <Tweet v-for="(tweet, i) in tweets" :key="i" :tweet="tweet"/>
+        <Tweet v-for="(tweet, i) in userTweets" :key="i" :tweet="tweet" :name="'userTweets'"/>
     </div>
 </template>
 
@@ -13,7 +13,7 @@ export default {
     name: "Post",
     components: {Tweet},
     computed: {
-        ...mapState(['tweets', 'user']),
+        ...mapState(['userTweets', 'user']),
     },
     created() {
         this.getUserTweets(this?.user?.id);

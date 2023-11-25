@@ -13,18 +13,16 @@ export default new Vuex.Store({
         token: getItem('token') || null,
         isLoading: false,
         tweets: [],
-        tweet_pagination: {},
+        userTweets: [],
+        tweet_pagination: {
+            current_page: 0
+        },
         userFollowers: [],
         userFollowings: [],
         tweetForm: {
             content: ''
         },
-        randomUsers: {
-            data: [],
-            pagination: {
-                current_page: 1
-            }
-        },
+        randomUsers: [],
         errors: []
     },
     mutations: {
@@ -41,7 +39,12 @@ export default new Vuex.Store({
             state.isLoading = !state.isLoading
         },
         SET_TWEETS(state, data) {
-            state.tweets = data
+            data.map(tweet => {
+                state.tweets.push(tweet)
+            });
+        },
+        SET_USER_TWEETS(state, data) {
+            state.userTweets = data
         },
         SET_USER_FOLLOWERS(state, data) {
             state.userFollowers = data
@@ -78,22 +81,21 @@ export default new Vuex.Store({
             state.errors = error
         },
         SET_LIKE_OR_DISLIKE(state, value) {
-            let index = state.tweets.map(tweet => tweet.id).indexOf(value.tweetId)
+            let index = state[value.name].map(tweet => tweet.id).indexOf(value.tweetId)
 
             if (index > -1) {
-                let tweet = state.tweets[index]
+                let tweet = state[value.name][index]
                 let tweet_likes_count = parseInt(tweet?.likes_count)
                 if (value?.operation == 'like') {
                     tweet.likes_count = tweet_likes_count >= 0 ? tweet_likes_count + 1 : 0
                     tweet.user_likes.push({user_id: value.userId, tweet_id: tweet.id})
-                    Vue.set(state.tweets, index, tweet)
+                    Vue.set(state[value.name], index, tweet)
                 } else {
                     tweet.likes_count = tweet_likes_count >= 0 ? tweet_likes_count - 1 : 0
                     tweet.user_likes = []
-                    Vue.set(state.tweets, index, tweet)
+                    Vue.set(state[value.name], index, tweet)
                 }
             }
-
         }
     },
     actions: {
@@ -136,8 +138,7 @@ export default new Vuex.Store({
             try {
                 await get(`/users/${userId}/tweets`)
                     .then((res) => {
-                        let {data, ...rest} = res?.data?.data
-                        commit('SET_TWEETS', data)
+                        commit('SET_USER_TWEETS', res?.data?.data.data)
                     })
             } catch (error) {
                 errorToast(error?.response?.data?.message)

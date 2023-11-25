@@ -10,7 +10,7 @@
                     <span class="text-secondary small"> @{{ tweet?.user?.user_name }}</span>
 
                     <i class="bi bi-hand-thumbs-up-fill float-end cursor-pointer"
-                       @click="tweetLikeOrDislike({userId: user?.id, tweetId: tweet?.id, operation: 'dislike'})"
+                       @click="tweetLikeOrDislike({userId: user?.id, tweetId: tweet?.id, operation: 'dislike', name: name})"
                        title="Dislike"
                        v-if="isObjectEmpty(tweet?.user_likes)"
                     >
@@ -18,7 +18,7 @@
                     </i>
 
                     <i class="bi bi-hand-thumbs-up float-end cursor-pointer"
-                       @click="tweetLikeOrDislike({userId: user?.id, tweetId: tweet?.id, operation: 'like'})"
+                       @click="tweetLikeOrDislike({userId: user?.id, tweetId: tweet?.id, operation: 'like', name: name})"
                        title="Like"
                        v-else
                     >
@@ -36,7 +36,7 @@ import {mapActions, mapState} from "vuex";
 
 export default {
     name: "Tweet",
-    props: ['tweet'],
+    props: ['tweet', 'name'],
     computed: {
         ...mapState(['user']),
     },
