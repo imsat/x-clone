@@ -27,7 +27,7 @@ export default new Vuex.Store({
     },
     mutations: {
         SET_USER(state, data) {
-            state.authUser = data;
+            state.user = data;
             data === null ? removeItem('user') : setItem('user', data)
         },
         SET_TOKEN(state, data) {

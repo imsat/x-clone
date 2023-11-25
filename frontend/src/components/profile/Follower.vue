@@ -1,7 +1,9 @@
 <template>
     <div>
         <hr>
+        <div class="card-body">
         <UserShow v-for="(userFollower, i) in userFollowers" :key="i" :user="userFollower" :name="'userFollowers'"/>
+            </div>
     </div>
 </template>
 
