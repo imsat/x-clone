@@ -69,6 +69,7 @@ class TweetController extends Controller
             $userTweets = $user->tweets()
                 ->with(['user:id,name,user_name,avatar', 'userLikes:id,user_id,tweet_id'])
                 ->withCount(['likes'])
+                ->latest()
                 ->paginate($perPage);
             return $this->response(true, 'User tweet list', $userTweets);
         } catch (\Exception $e) {

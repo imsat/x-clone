@@ -21,8 +21,8 @@ class FollowerController extends Controller
                 ->whereHas('following', function ($q) use ($user) {
                     $q->where('user_id', $user->id);
                 })->select('id', 'name', 'user_name', 'avatar')
+                ->latest()
                 ->paginate($perPage);
-
 
             return $this->response(true, 'User follower list', $userFollowers);
         } catch (\Exception $e) {
@@ -42,7 +42,9 @@ class FollowerController extends Controller
                     ->select('id', 'user_id', 'following_id');
             }])->whereHas('followers', function ($q) use ($user) {
                 $q->where('following_id', $user->id);
-            })->select('id', 'name', 'user_name', 'avatar')
+            })
+                ->select('id', 'name', 'user_name', 'avatar')
+                ->latest()
                 ->paginate($perPage);
 
             return $this->response(true, 'User following list', $userFollowings);
