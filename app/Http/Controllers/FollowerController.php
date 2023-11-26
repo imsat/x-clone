@@ -12,7 +12,7 @@ class FollowerController extends Controller
      */
     public function userFollower(User $user, Request $request)
     {
-        $perPage = $request->get('per_page', 15);
+        $perPage = $request->get('per_page', 20);
         try {
             $userFollowers = User::with(['followers' => function ($query) {
                 $query->where('following_id', auth()->id())
@@ -35,7 +35,7 @@ class FollowerController extends Controller
      */
     public function userFollowing(User $user, Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage = $request->get('per_page', 20);
         try {
             $userFollowings = User::with(['followers' => function ($query) {
                 $query->where('following_id', auth()->id())
